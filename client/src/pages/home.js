@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { CardActionArea, CardMedia, Typography } from '@mui/material';
+import Link from 'next/link';
 
 const Home = () => {
     const[movies, setMovies] = useState([]);
@@ -65,6 +66,7 @@ const Home = () => {
                 >
                 {movies.map((movie) => (
                     <SwiperSlide key={movie.id}>
+                        <Link href={`detail/movie/${movie.id}`}>
                         <CardActionArea>
                             <CardMedia
                                 compornent={"img"}
@@ -75,6 +77,7 @@ const Home = () => {
                                     alt={movie.title}
                             />
                         </CardActionArea>
+                        </Link>
 
                         <Typography>
                             公開日：{movie.release_date}
