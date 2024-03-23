@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 14a70a937ffa92afdfd58188b98315444188d8d6 kazu1222 <12.22.96.kazu@gmail.com> 1711103772 +0900	clone: from https://github.com/laravel/breeze-next.git
+14a70a937ffa92afdfd58188b98315444188d8d6 81ce4caab419aaa3dc5f389a8cfd8afb33143bfa kazu1222 <12.22.96.kazu@gmail.com> 1711103982 +0900	checkout: moving from master to 20240322_oldNextVerForLaravelBereeze
+81ce4caab419aaa3dc5f389a8cfd8afb33143bfa 471f2991b0831244eeaa48e165f9616e848ca1b3 kazu1222 <12.22.96.kazu@gmail.com> 1711126008 +0900	commit: dashbord画面をhome画面に変更
