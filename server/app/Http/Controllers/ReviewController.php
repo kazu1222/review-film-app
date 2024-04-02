@@ -83,7 +83,17 @@ class ReviewController extends Controller
      */
     public function update(Request $request, Review $review)
     {
-        //
+        $validateDate = $request->validate([
+            "content" => 'required|string',
+            "rating" => 'required|integer',
+        ]);
+
+        $review->update([
+            "content" => $validateDate["content"],
+            "rating" => $validateDate["rating"]
+        ]);
+
+        return response()->json($review);
     }
 
     /**
