@@ -1,28 +1,80 @@
 import axios from 'axios'
-import { Box, Card, CardContent, Container, Grid, Rating, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Container, Fab, Grid, Modal, Rating, TextareaAutosize, Tooltip, Typography } from '@mui/material';
 import AppLayout from '@/components/Layouts/AppLayout';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import laravelAxios from '@/lib/laravelAxios';
+import AddIcon from '@mui/icons-material/Add'
+import StarIcon from '@mui/icons-material/Star'
+import { UpdateRounded } from '@mui/icons-material';
 
 const Detail = ({detail,media_type, media_id}) => {
-    // console.log(detail);
-    
-    const reviews = [
-        {
-            id: 1,
-            content: "面白かった",
-            rating: 4,
-            user: {
-                name: "小林和樹",
-            }
-        }
-    ]
+const[open ,setOpen] = useState(false)
+const[rating, setRating] = useState(0);
+const[review, setReview] = useState("");
+const[reviews, setReviews] = useState([]);
+const[averageRating, setRAverageRating] = useState(null);
+const handleOpen = () => {
+    setOpen(true)
+}
+const handleClose = () => {
+    setOpen(false)
+}
+const handleReviewChange = (e) => {
+    setReview(e.target.value)
+    console.log(review)
+}
+const handleRatingChange = (e, newValue) => {
+    setRating(newValue)
+    console.log(rating);
+}
+const isDisabled = !rating || !review.trim()
+
+const handleReviewAdd = async() =>{
+    handleClose()
+    try{
+        const response = await laravelAxios.post(`api/reviews`,{
+            content: review,
+            rating: rating,
+            media_type: media_type,
+            media_id: media_id
+        })
+        console.log(response.data);
+        const newReview = response.data;
+
+        setReviews([...reviews, newReview]);
+        console.log(reviews);
+
+        setReview("");
+        setRating(0);
+
+        const updateReviews = [...reviews, newReview];
+        updateAverageRating(updateReviews)
+
+    } catch(err){
+        console.log(err);
+        
+    }
+}
+
+const updateAverageRating = (updateReviews) => {
+    if(updateReviews.length > 0) {
+        const totalRating = updateReviews.reduce((acc, review) => acc + review.rating, 0);
+        console.log(totalRating)
+        const average = (totalRating / updateReviews.length).toFixed(1);
+        setRAverageRating(average);
+        console.log(average);
+    }
+}
+
     useEffect(()=> {
         const fetchReviews = async() => {
             try{
                 const response = await laravelAxios.get(`api/reviews/${media_type}/${media_id}`)
                 console.log(response);
+                const fetchReviews = response.data;
+                setReviews(fetchReviews)
+                updateAverageRating(fetchReviews)
             }
             catch(err){
                 console.log(err)
@@ -80,6 +132,27 @@ const Detail = ({detail,media_type, media_id}) => {
                     <Grid item md={8}>
                         <Typography variant="h4" paragraph>{detail.title || detail.name}</Typography>
                         <Typography paragraph>{detail.overview}</Typography>
+                        <Box
+                            gap={2}
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                mb:2
+                            }}>
+                            <Rating
+                                readOnly
+                                precision={0.5}
+                                value={parseFloat(averageRating)}
+                                emptyIcon={<StarIcon style={{color: "white"}}/>}
+                            />
+                            <Typography
+                                sx={{
+                                    ml:1,
+                                    fontSize: '1.5rem',
+                                    fontWeight: "bold",
+                            }}>{averageRating}</Typography>
+
+                        </Box>
                         <Typography variant='h6'>
                             {media_type == "movie" ? `公開日：${detail.release_date}`:`初回放送日：${detail.first_air_date}`}
                         </Typography>
@@ -128,6 +201,66 @@ const Detail = ({detail,media_type, media_id}) => {
             </Grid>
 
         </Container>
+        
+        {/* レビュー追加ボタン */}
+        <Box
+        sx={{
+            position: "fixed",
+            bottom: "16px",
+            right: "16px",
+            zIndex: 5,
+        }}
+        >
+            <Tooltip title="レビュー追加">
+                <Fab
+                    style={{background: "#1976d2", color: "white"}}
+                    onClick={handleOpen}
+                >
+                    <AddIcon />
+                </Fab>
+            </Tooltip>
+        </Box>
+        {/* モーダルウインドウ */}
+        <Modal open={open} onClose={handleClose}>
+            <Box
+                sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: 400,
+                    bgcolor: "background.paper",
+                    border: "2px solid, #000",
+                    boxShadow: 24,
+                    p: 4
+                }}>
+                    <Typography variant="h6" component="h2">
+                        レビューを書く
+                    </Typography>
+
+                    <Rating
+                        required
+                        onChange={handleRatingChange}
+                        value={rating}
+                    />
+                    <TextareaAutosize 
+                        required
+                        minRows={5}
+                        placeholder='レビュー内容'
+                        style={{width: "100%", marginTop: "10px"}}
+                        onChange={handleReviewChange}
+                        value={review}
+                    />
+                    <Button
+                        variant='outlined'
+                        disabled={isDisabled}
+                        onClick={handleReviewAdd}
+                    >
+                        送信
+                    </Button>
+                    
+            </Box>
+        </Modal>
     </AppLayout>
   )
 }
