@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Box, Button, ButtonGroup, Card, CardContent, Container, Fab, Grid, Modal, Rating, TextareaAutosize, Tooltip, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, Card, CardContent, Container, Fab, Grid, IconButton, Modal, Rating, TextareaAutosize, Tooltip, Typography } from '@mui/material';
 import AppLayout from '@/components/Layouts/AppLayout';
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
@@ -8,6 +8,8 @@ import AddIcon from '@mui/icons-material/Add'
 import StarIcon from '@mui/icons-material/Star'
 import { UpdateRounded } from '@mui/icons-material';
 import { useAuth } from '@/hooks/auth';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 
 const Detail = ({detail,media_type, media_id}) => {
 const[open ,setOpen] = useState(false)
@@ -18,6 +20,7 @@ const[averageRating, setRAverageRating] = useState(null);
 const[editMode, setEditMode] = useState(null);
 const[editedRating,setEditedRating] = useState(null);
 const[editedContent,setEditedContent] = useState("");
+const[isFavorited,setIsFavorited] = useState(false);
 
 const { user } = useAuth({middleware: 'auth'});
 // console.log(user);
@@ -134,14 +137,38 @@ const handleConfirmEdit = async(reviewId) => {
         console.log(err)
     }
 }
+
+const handleToggleFavorite = async() => {
+    try{
+        const response = await laravelAxios.post('api/favorites', {
+            media_type: media_type,
+            media_id: media_id,
+        });
+    console.log(response.data);
+    setIsFavorited(response.data.status === "added")
+    } catch(err){
+
+    }
+}
     useEffect(()=> {
         const fetchReviews = async() => {
             try{
-                const response = await laravelAxios.get(`api/reviews/${media_type}/${media_id}`)
-                // console.log(response);
-                const fetchReviews = response.data;
+                const [reviewResponse, favoriteResponse] = await Promise.all([
+                    laravelAxios.get(`api/reviews/${media_type}/${media_id}`),
+                    laravelAxios.get('api/favorites/status', {
+                        params: {
+                            media_type: media_type,
+                            media_id: media_id
+                        }
+                    })
+                ])
+                console.log(reviewResponse.data);
+                const fetchReviews = reviewResponse.data;
                 setReviews(fetchReviews)
                 updateAverageRating(fetchReviews)
+
+                console.log(favoriteResponse);
+                setIsFavorited(favoriteResponse.data)
             }
             catch(err){
                 console.log(err)
@@ -198,6 +225,11 @@ const handleConfirmEdit = async(reviewId) => {
                     </Grid>
                     <Grid item md={8}>
                         <Typography variant="h4" paragraph>{detail.title || detail.name}</Typography>
+
+                        <IconButton onClick={handleToggleFavorite} style={{color: isFavorited?  "red" : "white", background: "#0d253f"}}>
+                            <FavoriteIcon />
+                        </IconButton>
+                        
                         <Typography paragraph>{detail.overview}</Typography>
                         <Box
                             gap={2}
