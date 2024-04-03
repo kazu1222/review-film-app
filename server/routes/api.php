@@ -16,5 +16,7 @@ Route::delete('review/{review}', [ReviewController::class, 'destroy']);
 Route::put('review/{review}', [ReviewController::class, 'update']);
 
 //お気に入り
+Route::get('favorites', [FavoriteController::class, 'index']);
 Route::post('favorites', [FavoriteController::class, 'toggleFavorite']);
 Route::get('favorites/status', [FavoriteController::class, 'checkFavoritesStatus']);
+
