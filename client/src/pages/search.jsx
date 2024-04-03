@@ -42,7 +42,6 @@ const search = () => {
         }
         return result.media_type === category;
     })
-    console.log(fillteredResults);
 
   return (
     <AppLayout

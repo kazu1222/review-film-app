@@ -15,9 +15,7 @@ const Home = () => {
         const fetchMovies = async() => {
             try{
                 const response = await axios.get('api/getPopularMovies');
-                // console.log(response.data.results);
                 setMovies(response.data.results);
-                console.log(movies);
             } catch(err){
                 console.log(err);
             }
