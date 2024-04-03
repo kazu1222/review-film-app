@@ -23,7 +23,6 @@ const[editedContent,setEditedContent] = useState("");
 const[isFavorited,setIsFavorited] = useState(false);
 
 const { user } = useAuth({middleware: 'auth'});
-// console.log(user);
 
 const handleOpen = () => {
     setOpen(true)
@@ -33,11 +32,9 @@ const handleClose = () => {
 }
 const handleReviewChange = (e) => {
     setReview(e.target.value)
-    // console.log(review)
 }
 const handleRatingChange = (e, newValue) => {
     setRating(newValue)
-    console.log(rating);
 }
 const isButtonDisabled = (rating, content) => {
     return !rating || !content.trim();
@@ -55,11 +52,9 @@ const handleReviewAdd = async() =>{
             media_type: media_type,
             media_id: media_id
         })
-        console.log(response.data);
         const newReview = response.data;
 
         setReviews([...reviews, newReview]);
-        console.log(reviews);
 
         setReview("");
         setRating(0);
@@ -76,7 +71,6 @@ const handleReviewAdd = async() =>{
 const updateAverageRating = (updateReviews) => {
     if(updateReviews.length > 0) {
         const totalRating = updateReviews.reduce((acc, review) => acc + review.rating, 0);
-        console.log(totalRating)
         const average = (totalRating / updateReviews.length).toFixed(1);
         setRAverageRating(average);
     } else {
@@ -85,13 +79,10 @@ const updateAverageRating = (updateReviews) => {
 }
 
 const handleDelete = async(id) => {
-    console.log(id);
     if (window.confirm('レビューを削除してもよろしいですか？')){
         try {
             const response = await laravelAxios.delete(`api/review/${id}`);
-            console.log(response);
             const filteredReviews = reviews.filter((review) => review.id !== id);
-            console.log(filteredReviews);
             setReviews(filteredReviews)
             updateAverageRating(filteredReviews);
         } catch(err) {
@@ -108,15 +99,12 @@ const handleEdit = (review) => {
 
 //編集確定ボタンを押された時の処理
 const handleConfirmEdit = async(reviewId) => {
-    // console.log(reviewId)
     try {
         const response = await laravelAxios.put(`api/review/${reviewId}`,{
         content: editedContent,
         rating: editedRating
     })
-    // console.log(response);
     const updatedReview = response.data;
-    // console.log(updateReviews)
     setEditMode(null);
 
     const updatedReviews = reviews.map((review) => {
@@ -132,7 +120,6 @@ const handleConfirmEdit = async(reviewId) => {
 
     setReviews(updatedReviews);
 
-    console.log(updatedReviews);
     } catch(err) {
         console.log(err)
     }
@@ -144,7 +131,6 @@ const handleToggleFavorite = async() => {
             media_type: media_type,
             media_id: media_id,
         });
-    console.log(response.data);
     setIsFavorited(response.data.status === "added")
     } catch(err){
 
@@ -162,12 +148,10 @@ const handleToggleFavorite = async() => {
                         }
                     })
                 ])
-                console.log(reviewResponse.data);
                 const fetchReviews = reviewResponse.data;
                 setReviews(fetchReviews)
                 updateAverageRating(fetchReviews)
 
-                console.log(favoriteResponse);
                 setIsFavorited(favoriteResponse.data)
             }
             catch(err){
